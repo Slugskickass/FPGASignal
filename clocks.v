@@ -21,18 +21,15 @@ lookup_table my_lut (
 wire inverse;                   // Used to generate chip select signal (inverse of counter[N])
 reg dataclock = 1'b0;           // Register for generating the serial clock signal
 reg [24:0] counter = 0;         // Main counter for timing
-//reg [4:0] timer = 0;          // Commented out timer register (unused)
 reg [3:0] tempcounter = 4'b0000; // Counter to select which bit of data to send
 reg [3:0] dataloader = 4'b0000; // Counter to select which pattern to load from LUT
-localparam N = 10;              // Timing parameter for chip select frequency
+localparam N = 8;              // Timing parameter for chip select frequency
 localparam D = N-6;             // Timing parameter for serial clock frequency (4)
 
 // Main counter - increments on every positive edge of the main clock
 // This is the timing base for all operations
 always @(posedge CLK) begin
         counter <= counter + 1;
-//      if (counter[N])         // Commented out timer increment logic
-//              timer <= timer + 1;
 end
 
 // Generate the data clock (serial clock output)
