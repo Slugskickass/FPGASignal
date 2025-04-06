@@ -1,0 +1,87 @@
+module pmod_counter (
+        input CLK,
+        output P1_1,
+        output P1_12
+);
+
+// Declare wires and regs
+wire [15:0] lut_data;
+reg [15:0] data = 16'b1010101010101010;
+reg [3:0] dataloader = 0;  // Use this to drive lut_address
+
+// Instantiate the lookup table
+lookup_table my_lut (
+    .address(dataloader),  // Connect directly to dataloader
+    .data_out(lut_data)
+);
+
+wire inverse;
+reg dataclock = 1'b0;
+reg [24:0] counter = 0;
+reg [4:0] timer = 0;
+reg [4:0] newtimer = 0;
+localparam N = 10;
+localparam D = N-6;
+
+// Counter and timer logic
+always @(posedge CLK) begin
+    counter <= counter + 1;
+    if (counter[N])
+        timer <= timer + 1;
+end
+
+// This generates the data clock to be sent to the data clock
+always @(posedge CLK) begin
+    if (counter[D] == 1'b1) begin  // Only increment when bit D is high
+        newtimer <= newtimer + 1;
+        if (counter[N])
+            dataclock <= ~dataclock;
+    end
+end
+
+// This section changes the address of the data loaded from the look up table
+always @(posedge CLK) begin
+    if (inverse == 1'b0 && counter[0]) begin  // Check for negedge of inverse using registered value
+        dataloader <= dataloader + 1;  // Increment dataloader which drives lut_address
+        data <= lut_data;  // Capture LUT data (proper non-blocking assignment)
+    end
+end
+
+assign inverse = ~counter[N];
+assign P1_1 = inverse;
+assign P1_12 = data[timer];
+
+endmodule
+
+
+
+
+module lookup_table (
+    input wire [3:0] address,     // 4-bit address input (16 possible values)
+    output reg [15:0] data_out     // 16-bit data output
+);
+
+    // Lookup table implementation using a case statement
+    always @(*) begin
+        case (address)
+            4'b0000: data_out = 16'b0000000000000000;  // Address 0 maps to 0x00
+            4'b0001: data_out = 16'b0000000000000010;  // Address 0 maps to 0x00
+            4'b0010: data_out = 16'b0000000000000100;  // Address 0 maps to 0x00
+            4'b0011: data_out = 16'b0000000000001000;  // Address 0 maps to 0x00
+            4'b0100: data_out = 16'b0000000000010000;  // Address 0 maps to 0x00
+            4'b0101: data_out = 16'b0000000000100000;  // Address 0 maps to 0x00
+            4'b0110: data_out = 16'b0000000001000000;  // Address 0 maps to 0x00
+            4'b0111: data_out = 16'b0000000010000000;  // Address 0 maps to 0x00
+            4'b1000: data_out = 16'b0000001000000000;  // Address 0 maps to 0x00
+            4'b1001: data_out = 16'b0000000100000000;  // Address 0 maps to 0x00
+            4'b1010: data_out = 16'b0000000010000000;  // Address 0 maps to 0x00
+            4'b1011: data_out = 16'b0000000001000000;  // Address 0 maps to 0x00
+            4'b1100: data_out = 16'b0000000000100000;  // Address 0 maps to 0x00
+            4'b1101: data_out = 16'b0000000000010000;  // Address 0 maps to 0x00
+            4'b1110: data_out = 16'b0000000000001000;  // Address 0 maps to 0x00
+            4'b1111: data_out = 16'b0000000000000100;  // Address 0 maps to 0x00
+            default: data_out = 16'b0000000000000010;  // Address 0 maps to 0x00
+        endcase
+    end
+
+endmodule
