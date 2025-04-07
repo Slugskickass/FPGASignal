@@ -6,7 +6,7 @@ module pmod_counter (
 );
 
 // Declare wires to connect to the lookup table - used to store data patterns
-wire [3:0] lut_address;         // 4-bit address to select data from lookup table
+wire [5:0] lut_address;         // 5-bit address to select data from lookup table
 wire [15:0] lut_data;           // 16-bit data output from the lookup table
 
 reg [15:0] data = 16'b0000000000000000;  // Register to store current data pattern from LUT
@@ -21,9 +21,9 @@ lookup_table my_lut (
 wire inverse;                   // Used to generate chip select signal (inverse of counter[N])
 reg dataclock = 1'b0;           // Register for generating the serial clock signal
 reg [24:0] counter = 0;         // Main counter for timing
-reg [3:0] tempcounter = 4'b0000; // Counter to select which bit of data to send
-reg [3:0] dataloader = 4'b0000; // Counter to select which pattern to load from LUT
-localparam N = 8;              // Timing parameter for chip select frequency
+reg [5:0] tempcounter = 5'b00000; // Counter to select which bit of data to send
+reg [5:0] dataloader = 5'b00000; // Counter to select which pattern to load from LUT
+localparam N = 10;              // Timing parameter for chip select frequency
 localparam D = N-6;             // Timing parameter for serial clock frequency (4)
 
 // Main counter - increments on every positive edge of the main clock
@@ -63,31 +63,80 @@ endmodule
 
 
 module lookup_table (
-    input wire [3:0] address,     // 4-bit address input (16 possible values)
+    input wire [5:0] address,     // 4-bit address input (16 possible values)
     output reg [15:0] data_out     // 16-bit data output
 );
 
     // Lookup table implementation using a case statement
     always @(*) begin
         case (address)
-            4'b0000: data_out = 16'b0000000000000000;  // Address 0 maps to 0x00
-            4'b0001: data_out = 16'b1110000000000000;  // Address 0 maps to 0x00
-            4'b0010: data_out = 16'b0011100000000000;  // Address 0 maps to 0x00
-            4'b0011: data_out = 16'b0000111000000000;  // Address 0 maps to 0x00
-            4'b0100: data_out = 16'b0000011100000000;  // Address 0 maps to 0x00
-            4'b0101: data_out = 16'b0000000111000000;  // Address 0 maps to 0x00
-            4'b0110: data_out = 16'b0000000001110000;  // Address 0 maps to 0x00
-            4'b0111: data_out = 16'b1100110011000000;  // Address 0 maps to 0x00
-            4'b1000: data_out = 16'b1110111011100000;  // Address 0 maps to 0x00
-            4'b1001: data_out = 16'b1111100011110000;  // Address 0 maps to 0x00
-            4'b1010: data_out = 16'b1111110111110000;  // Address 0 maps to 0x00
-            4'b1011: data_out = 16'b0111111111110000;  // Address 0 maps to 0x00
-            4'b1100: data_out = 16'b0011111111100000;  // Address 0 maps to 0x00
-            4'b1101: data_out = 16'b0001111111000000;  // Address 0 maps to 0x00
-            4'b1110: data_out = 16'b0001000100010000;  // Address 0 maps to 0x00
-            4'b1111: data_out = 16'b0011101110010000;  // Address 0 maps to 0x00
-            default: data_out = 16'b0000000000000000;  // Address 0 maps to 0x00
-        endcase
+6'b000000: data_out = 16'b0000000000100000;
+6'b000001: data_out = 16'b0100110000100000;
+6'b000010: data_out = 16'b1010011000100000;
+6'b000011: data_out = 16'b0110100100100000;
+6'b000100: data_out = 16'b0110001100100000;
+6'b000101: data_out = 16'b0010111100100000;
+6'b000110: data_out = 16'b0000010010100000;
+6'b000111: data_out = 16'b1001001010100000;
+6'b001000: data_out = 16'b0111011010100000;
+6'b001001: data_out = 16'b0000100110100000;
+6'b001010: data_out = 16'b0111010110100000;
+6'b001011: data_out = 16'b1110001110100000;
+6'b001100: data_out = 16'b0011101110100000;
+6'b001101: data_out = 16'b0011011110100000;
+6'b001110: data_out = 16'b0001111110100000;
+6'b001111: data_out = 16'b0111111110100000;
+6'b010000: data_out = 16'b1111111110100000;
+6'b010001: data_out = 16'b0011111110100000;
+6'b010010: data_out = 16'b1100111110100000;
+6'b010011: data_out = 16'b1010011110100000;
+6'b010100: data_out = 16'b0100101110100000;
+6'b010101: data_out = 16'b1101110110100000;
+6'b010110: data_out = 16'b1111100110100000;
+6'b010111: data_out = 16'b1111111010100000;
+6'b011000: data_out = 16'b0011101010100000;
+6'b011001: data_out = 16'b1010110010100000;
+6'b011010: data_out = 16'b0101000010100000;
+6'b011011: data_out = 16'b0111101100100000;
+6'b011100: data_out = 16'b1111010100100000;
+6'b011101: data_out = 16'b0111111000100000;
+6'b011110: data_out = 16'b0011001000100000;
+6'b011111: data_out = 16'b1001100000100000;
+6'b100000: data_out = 16'b0110011111000000;
+6'b100001: data_out = 16'b1100110111000000;
+6'b100010: data_out = 16'b1000000111000000;
+6'b100011: data_out = 16'b0000101011000000;
+6'b100100: data_out = 16'b1000010011000000;
+6'b100101: data_out = 16'b1010111101000000;
+6'b100110: data_out = 16'b0101001101000000;
+6'b100111: data_out = 16'b1100010101000000;
+6'b101000: data_out = 16'b0000000101000000;
+6'b101001: data_out = 16'b0000011001000000;
+6'b101010: data_out = 16'b0010001001000000;
+6'b101011: data_out = 16'b1011010001000000;
+6'b101100: data_out = 16'b0101100001000000;
+6'b101101: data_out = 16'b0011000001000000;
+6'b101110: data_out = 16'b1100000001000000;
+6'b101111: data_out = 16'b0000000001000000;
+6'b110000: data_out = 16'b1000000001000000;
+6'b110001: data_out = 16'b1110000001000000;
+6'b110010: data_out = 16'b1100100001000000;
+6'b110011: data_out = 16'b1100010001000000;
+6'b110100: data_out = 16'b0001110001000000;
+6'b110101: data_out = 16'b1000101001000000;
+6'b110110: data_out = 16'b1111011001000000;
+6'b110111: data_out = 16'b1000100101000000;
+6'b111000: data_out = 16'b0110110101000000;
+6'b111001: data_out = 16'b1111101101000000;
+6'b111010: data_out = 16'b1101000011000000;
+6'b111011: data_out = 16'b1001110011000000;
+6'b111100: data_out = 16'b1001011011000000;
+6'b111101: data_out = 16'b0101100111000000;
+6'b111110: data_out = 16'b1011001111000000;
+6'b111111: data_out = 16'b1111111111000000;
+
+default: data_out = 16'b0000000000000000;  // Address 0 maps to 0x00
+       endcase
     end
 
 endmodule
